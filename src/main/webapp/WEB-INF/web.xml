@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+    <servlet>
+        <servlet-name>AttendanceServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.AttendanceServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.LoginServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AdminWorkerServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.AdminWorkerServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DashboardServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.DashboardServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>WorkerServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.WorkerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AttendanceServlet</servlet-name>
+        <url-pattern>/attendance</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AdminWorkerServlet</servlet-name>
+        <url-pattern>/admin/worker</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DashboardServlet</servlet-name>
+        <url-pattern>/dashboard</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WorkerServlet</servlet-name>
+        <url-pattern>/workers</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+    <!--    <context-param>
+        <param-name>UPLOAD_BASE_PATH</param-name>
+        <param-value>D:/labour-attendance/uploads</param-value>
+    </context-param>-->
+</web-app>

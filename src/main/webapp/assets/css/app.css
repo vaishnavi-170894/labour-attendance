@@ -1,0 +1,151 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 03-Feb-2026, 2:01:41 pm
+    Author     : vaishnavi.dhole
+*/
+
+/* ================= RESET ================= */
+* {
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 12px;
+    background: #f5f6fa;
+    color: #333;
+}
+
+/* ================= HEADINGS ================= */
+h1, h2, h3 {
+    margin: 8px 0 12px 0;
+    font-weight: 600;
+}
+
+/* ================= CARD ================= */
+.card {
+    background: #ffffff;
+    padding: 14px;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+}
+
+/* ================= FORMS ================= */
+label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: block;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+select,
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-bottom: 12px;
+    background: #fff;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #4b7bec;
+}
+
+/* ================= BUTTONS ================= */
+button {
+    width: 100%;
+    padding: 12px;
+    background: #4b7bec;
+    color: white;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #3867d6;
+}
+
+/* ================= LINKS ================= */
+a {
+    color: #4b7bec;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* ================= TABLE ================= */
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background: #f1f2f6;
+    font-weight: 600;
+}
+
+/* ================= ALERTS ================= */
+.alert {
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.alert-success {
+    background: #dff9fb;
+    color: #0a3d62;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* ================= WORKER SEARCH ================= */
+.search-input {
+    margin-bottom: 8px;
+}
+
+/* ================= FOOTER ACTIONS ================= */
+.footer-links {
+    margin-top: 12px;
+    text-align: center;
+}
+
+/* ================= MOBILE OPTIMIZATION ================= */
+@media (min-width: 768px) {
+    body {
+        max-width: 480px;
+        margin: auto;
+    }
+}
