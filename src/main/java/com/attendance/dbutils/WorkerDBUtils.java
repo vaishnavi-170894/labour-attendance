@@ -77,4 +77,13 @@ public class WorkerDBUtils {
 
         return "success";
     }
+    public static int getWorkerCount(Connection conn) throws Exception {
+    PreparedStatement ps = conn.prepareStatement(
+        "SELECT COUNT(*) FROM worker_master WHERE active=1"
+    );
+    ResultSet rs = ps.executeQuery();
+    rs.next();
+    return rs.getInt(1);
+}
+
 }

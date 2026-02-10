@@ -18,73 +18,92 @@ import java.util.List;
  */
 public class WorkTypeDBUtils {
     /* ================= LIST ACTIVE WORK TYPES ================= */
-    public static List<WorkType> workTypes(Connection conn) throws SQLException {
+    public static List<WorkType> workTypes(Connection conn) throws Exception {
 
         List<WorkType> list = new ArrayList<>();
 
-        String sql =
-            "SELECT work_type_id, work_type_name, full_day_wage, half_day_wage, active " +
-            "FROM work_type WHERE active=1 ORDER BY work_type_name";
+        PreparedStatement ps = conn.prepareStatement(
+            "SELECT work_type_id, work_type_name, full_day_wage, half_day_wage " +
+            "FROM work_type WHERE active=1 ORDER BY work_type_name"
+        );
 
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        ResultSet rs = ps.executeQuery();
 
-            while (rs.next()) {
-                WorkType wt = new WorkType();
-                wt.setWorkTypeId(rs.getInt("work_type_id"));
-                wt.setWorkTypeName(rs.getString("work_type_name"));
-                wt.setFullDayWage(rs.getDouble("full_day_wage"));
-                wt.setHalfDayWage(rs.getDouble("half_day_wage"));
-                wt.setActive(rs.getInt("active"));
-                list.add(wt);
-            }
+        while (rs.next()) {
+            WorkType wt = new WorkType();
+            wt.setWorkTypeId(rs.getInt("work_type_id"));
+            wt.setWorkTypeName(rs.getString("work_type_name"));
+            wt.setFullDayWage(rs.getDouble("full_day_wage"));
+            wt.setHalfDayWage(rs.getDouble("half_day_wage"));
+
+            list.add(wt);
         }
+
         return list;
     }
 
-    /* ================= GET SINGLE WORK TYPE ================= */
-    public static WorkType workType(Connection conn, int workTypeId) throws SQLException {
+    public static void addWorkType(Connection conn, WorkType wt) throws Exception {
 
-        WorkType wt = null;
+        PreparedStatement ps = conn.prepareStatement(
+            "INSERT INTO work_type(work_type_name, full_day_wage, half_day_wage, active) " +
+            "VALUES(?,?,?,1)"
+        );
 
-        String sql =
-            "SELECT work_type_id, work_type_name, full_day_wage, half_day_wage, active " +
-            "FROM work_type WHERE work_type_id=? AND active=1";
+        ps.setString(1, wt.getWorkTypeName());
+        ps.setDouble(2, wt.getFullDayWage());
+        ps.setDouble(3, wt.getHalfDayWage());
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, workTypeId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    wt = new WorkType();
-                    wt.setWorkTypeId(rs.getInt("work_type_id"));
-                    wt.setWorkTypeName(rs.getString("work_type_name"));
-                    wt.setFullDayWage(rs.getDouble("full_day_wage"));
-                    wt.setHalfDayWage(rs.getDouble("half_day_wage"));
-                    wt.setActive(rs.getInt("active"));
-                }
-            }
-        }
-        return wt;
+        ps.executeUpdate();
     }
 
-    /* ================= ADD WORK TYPE (ADMIN) ================= */
-    public static String addWorkType(Connection conn, WorkType wt) throws SQLException {
+    public static void updateWorkType(Connection conn, WorkType wt) throws Exception {
 
-        String sql =
-            "INSERT INTO work_type " +
-            "(work_type_name, full_day_wage, half_day_wage, active) " +
-            "VALUES (?, ?, ?, 1)";
+        PreparedStatement ps = conn.prepareStatement(
+            "UPDATE work_type SET work_type_name=?, full_day_wage=?, half_day_wage=? " +
+            "WHERE work_type_id=?"
+        );
 
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, wt.getWorkTypeName());
-            ps.setDouble(2, wt.getFullDayWage());
-            ps.setDouble(3, wt.getHalfDayWage());
-            ps.executeUpdate();
-        }
-        return "success";
+        ps.setString(1, wt.getWorkTypeName());
+        ps.setDouble(2, wt.getFullDayWage());
+        ps.setDouble(3, wt.getHalfDayWage());
+        ps.setInt(4, wt.getWorkTypeId());
+
+        ps.executeUpdate();
     }
 
+    public static void deleteWorkType(Connection conn, int workTypeId) throws Exception {
+
+        // soft delete recommended
+        PreparedStatement ps = conn.prepareStatement(
+            "UPDATE work_type SET active=0 WHERE work_type_id=?"
+        );
+
+        ps.setInt(1, workTypeId);
+        ps.executeUpdate();
+    }
+
+    public static WorkType getById(Connection conn, int id) throws Exception {
+
+        PreparedStatement ps = conn.prepareStatement(
+            "SELECT work_type_id, work_type_name, full_day_wage, half_day_wage " +
+            "FROM work_type WHERE work_type_id=?"
+        );
+
+        ps.setInt(1, id);
+
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            WorkType wt = new WorkType();
+            wt.setWorkTypeId(rs.getInt("work_type_id"));
+            wt.setWorkTypeName(rs.getString("work_type_name"));
+            wt.setFullDayWage(rs.getDouble("full_day_wage"));
+            wt.setHalfDayWage(rs.getDouble("half_day_wage"));
+            return wt;
+        }
+
+        return null;
+    }
     /* ================= SOFT DELETE WORK TYPE ================= */
     public static String disableWorkType(Connection conn, int workTypeId) throws SQLException {
 

@@ -16,6 +16,7 @@ public class User extends Base{
     private String role;
     private Integer siteId;
     private int active;
+    private String extra1;
 
     public int getUserId() {
         return userId;
@@ -71,6 +72,14 @@ public class User extends Base{
 
     public void setActive(int active) {
         this.active = active;
+    }
+
+    public String getExtra1() {
+        return extra1;
+    }
+
+    public void setExtra1(String extra1) {
+        this.extra1 = extra1;
     }
     
     

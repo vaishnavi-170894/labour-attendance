@@ -5,6 +5,10 @@
 package com.attendance.servlet;
 
 import com.attendance.common.SessionUtils;
+import com.attendance.connections.DBConnection;
+import com.attendance.dbutils.AttendanceDBUtils;
+import com.attendance.dbutils.DashboardDBUtils;
+import com.attendance.dbutils.WorkerDBUtils;
 import com.attendance.dto.User;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,6 +17,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -20,7 +27,7 @@ import jakarta.servlet.http.HttpSession;
  */
 public class DashboardServlet extends HttpServlet {
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
@@ -36,8 +43,40 @@ public class DashboardServlet extends HttpServlet {
         request.setAttribute("action", "view");
         request.setAttribute("subaction", "");
 
-        request.getRequestDispatcher("/dashboard.jsp")
-               .forward(request, response);
+        try (Connection conn = DBConnection.PGConnection()) {
+
+            int totalWorkers = DashboardDBUtils.getTotalWorkers(conn);
+            int todayAttendance = DashboardDBUtils.getTodayAttendance(conn);
+
+            double todayWage = DashboardDBUtils.getTodayWage(conn);
+            double monthWage = DashboardDBUtils.getMonthWage(conn);
+
+            int totalSites = DashboardDBUtils.getTotalSites(conn);
+            int totalSupervisors = DashboardDBUtils.getTotalSupervisors(conn);
+
+            double monthPayment = DashboardDBUtils.getMonthPayment(conn);
+            double pendingBalance = DashboardDBUtils.getPendingBalance(conn);
+
+            List<Map<String, Object>> recentAttendance = DashboardDBUtils.getRecentAttendance(conn);
+
+            request.setAttribute("total_workers", totalWorkers);
+            request.setAttribute("today_attendance", todayAttendance);
+            request.setAttribute("today_wage", todayWage);
+            request.setAttribute("month_wage", monthWage);
+
+            // extra features
+            request.setAttribute("total_sites", totalSites);
+            request.setAttribute("total_supervisors", totalSupervisors);
+            request.setAttribute("month_payment", monthPayment);
+            request.setAttribute("pending_balance", pendingBalance);
+
+            request.setAttribute("recent_attendance", recentAttendance);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        request.getRequestDispatcher("/dashboard.jsp").forward(request, response);
     }
 
     @Override

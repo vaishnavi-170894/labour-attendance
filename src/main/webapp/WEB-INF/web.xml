@@ -9,16 +9,56 @@
         <servlet-class>com.attendance.servlet.LoginServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>AdminWorkerServlet</servlet-name>
-        <servlet-class>com.attendance.servlet.AdminWorkerServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>DashboardServlet</servlet-name>
         <servlet-class>com.attendance.servlet.DashboardServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>WorkerServlet</servlet-name>
         <servlet-class>com.attendance.servlet.WorkerServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>DailyReportServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.DailyReportServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>WorkTypeServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.WorkTypeServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AttendanceReportServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.AttendanceReportServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AttendanceReportPdfServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.AttendanceReportPdfServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PaymentServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.PaymentServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PaymentReportServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.PaymentReportServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PaymentReportExcelServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.PaymentReportExcelServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PaymentReportPdfServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.PaymentReportPdfServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>PaymentSettlementServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.PaymentSettlementServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SiteServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.SiteServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UserServlet</servlet-name>
+        <servlet-class>com.attendance.servlet.UserServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>AttendanceServlet</servlet-name>
@@ -29,10 +69,6 @@
         <url-pattern>/login</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>AdminWorkerServlet</servlet-name>
-        <url-pattern>/admin/worker</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>DashboardServlet</servlet-name>
         <url-pattern>/dashboard</url-pattern>
     </servlet-mapping>
@@ -40,13 +76,58 @@
         <servlet-name>WorkerServlet</servlet-name>
         <url-pattern>/workers</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DailyReportServlet</servlet-name>
+        <url-pattern>/daily-reports</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WorkTypeServlet</servlet-name>
+        <url-pattern>/work-types</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AttendanceReportServlet</servlet-name>
+        <url-pattern>/attendance-report</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AttendanceReportPdfServlet</servlet-name>
+        <url-pattern>/attendance-report-pdf</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PaymentServlet</servlet-name>
+        <url-pattern>/payments</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PaymentReportServlet</servlet-name>
+        <url-pattern>/payment-report</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PaymentReportExcelServlet</servlet-name>
+        <url-pattern>/payment-report-excel</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PaymentReportPdfServlet</servlet-name>
+        <url-pattern>/payment-report-pdf</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PaymentSettlementServlet</servlet-name>
+        <url-pattern>/payment-settlement</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SiteServlet</servlet-name>
+        <url-pattern>/sites</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UserServlet</servlet-name>
+        <url-pattern>/users</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>
             30
         </session-timeout>
     </session-config>
-    <!--    <context-param>
-        <param-name>UPLOAD_BASE_PATH</param-name>
-        <param-value>D:/labour-attendance/uploads</param-value>
-    </context-param>-->
+<!--   <context-param>
+    <param-name>UPLOAD_BASE_PATH</param-name>
+    <param-value>D:/labour_uploads</param-value>
+</context-param>-->
+
 </web-app>

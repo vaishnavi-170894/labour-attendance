@@ -34,7 +34,7 @@ import java.util.List;
  */
 @MultipartConfig(maxFileSize = 5 * 1024 * 1024)
 public class AttendanceServlet extends HttpServlet {
-   /* ================= LIST (SUPERVISOR HOME) ================= */
+   /* ================= MARK PAGE (LIST + FORM) ================= */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -46,54 +46,44 @@ public class AttendanceServlet extends HttpServlet {
             return;
         }
 
+        String selectedDate = request.getParameter("date");
+        if (selectedDate == null || selectedDate.isEmpty()) {
+            selectedDate = LocalDate.now().toString();
+        }
+
+        request.setAttribute("selectedDate", selectedDate);
+
         request.setAttribute("module", "Attendance");
         request.setAttribute("controller", "attendance");
-        request.setAttribute("action", "list");
+        request.setAttribute("action", "mark");
         request.setAttribute("subaction", "");
-
-        request.getRequestDispatcher("/attendance/index.jsp")
-               .forward(request, response);
-    }
-
-    /* ================= CREATE (GET) ================= */
-    protected void processRequestCreate_GET(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        HttpSession session = request.getSession(false);
-        User login = SessionUtils.getLoginedUser(session);
-
-        if (login == null || !"SUPERVISOR".equals(login.getRole())) {
-            response.sendRedirect(request.getContextPath() + "/index.jsp");
-            return;
-        }
 
         try (Connection conn = DBConnection.PGConnection()) {
 
-            // 🔹 Worker list
+            // Worker list
             Worker w = new Worker();
             List<Worker> workerList = WorkerDBUtils.workers(conn, w);
-            System.err.println("================"+workerList);
             request.setAttribute("workerList", workerList);
 
-            // 🔹 Work type list
+            // Work type list
             List<WorkType> workTypeList = WorkTypeDBUtils.workTypes(conn);
             request.setAttribute("workTypeList", workTypeList);
+
+            // Attendance list by date
+            List<Attendance> attendanceList =
+                    AttendanceDBUtils.attendanceListByDate(conn, selectedDate, login.getSiteId());
+
+            request.setAttribute("attendanceList", attendanceList);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        request.setAttribute("module", "Attendance");
-        request.setAttribute("controller", "attendance");
-        request.setAttribute("action", "create");
-        request.setAttribute("subaction", "");
-
-        request.getRequestDispatcher("/attendance/create.jsp")
-               .forward(request, response);
+        request.getRequestDispatcher("/attendance/mark.jsp").forward(request, response);
     }
 
-    /* ================= CREATE (POST) ================= */
-    protected void processRequestCreate_POST(HttpServletRequest request, HttpServletResponse response)
+    /* ================= CREATE ================= */
+    protected void processRequestCreate(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
@@ -104,9 +94,10 @@ public class AttendanceServlet extends HttpServlet {
             return;
         }
 
+        String date = request.getParameter("attendanceDate");
+
         try (Connection conn = DBConnection.PGConnection()) {
 
-            // 🔹 Read form values
             int workerId = Integer.parseInt(request.getParameter("workerId"));
             int workTypeId = Integer.parseInt(request.getParameter("workTypeId"));
             String dayType = request.getParameter("dayType");
@@ -115,26 +106,34 @@ public class AttendanceServlet extends HttpServlet {
             double longitude = Double.parseDouble(request.getParameter("longitude"));
             double accuracy = Double.parseDouble(request.getParameter("accuracy"));
 
-            // 🔹 Photo upload
-            Part photo = request.getPart("photo");
-
-            String basePath = getServletContext()
-                    .getInitParameter(Constants.UPLOAD_BASE_PATH);
-
-            String today = LocalDate.now().toString();
-            File uploadDir = new File(basePath, today);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
+            // check already marked
+            if (AttendanceDBUtils.checkAlreadyMarked(conn, date, workerId, login.getSiteId())) {
+                request.setAttribute("status", 300);
+                request.setAttribute("message", "Attendance already marked for this worker on selected date.");
+                request.setAttribute("date", date);
+                processRequest(request, response);
+                return;
             }
 
-            String fileName = "w_" + workerId + "_" + System.currentTimeMillis() + ".jpg";
+            Part photo = request.getPart("photo");
+
+//            String basePath = getServletContext().getInitParameter(Constants.UPLOAD_BASE_PATH);
+ String basePath = (Constants.UPLOAD_BASE_PATH);
+            File uploadDir = new File(basePath, "attendance/" + date);
+
+            if (!uploadDir.exists())
+            {uploadDir.mkdirs();}
+
+            String fileName = "att_" + workerId + "_" + System.currentTimeMillis() + ".jpg";
             File savedFile = new File(uploadDir, fileName);
             photo.write(savedFile.getAbsolutePath());
 
-            String dbPhotoPath = today + "/" + fileName;
+            String dbPhotoPath = "attendance/" + date + "/" + fileName;
 
-            // 🔹 Prepare DTO
+            double wage = AttendanceDBUtils.getWage(conn, workTypeId, dayType);
+
             Attendance att = new Attendance();
+            att.setAttendanceDate(date);
             att.setWorkerId(workerId);
             att.setWorkTypeId(workTypeId);
             att.setDayType(dayType);
@@ -144,24 +143,156 @@ public class AttendanceServlet extends HttpServlet {
             att.setPhotoPath(dbPhotoPath);
             att.setUserId(login.getUserId());
             att.setSiteId(login.getSiteId());
-
-            // 🔹 Calculate wage
-            double wage = AttendanceDBUtils.getWage(conn, workTypeId, dayType);
             att.setWage(wage);
 
-            // 🔹 Save attendance
             AttendanceDBUtils.saveAttendance(conn, att);
 
             request.setAttribute("status", 200);
-            request.setAttribute("message", "Attendance marked successfully");
+            request.setAttribute("message", "Attendance marked successfully!");
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("status", 300);
-            request.setAttribute("message", "Unable to mark attendance");
+            request.setAttribute("message", "Unable to mark attendance.");
         }
 
-        // 🔁 Show list page with message
+        request.setAttribute("date", date);
+        processRequest(request, response);
+    }
+
+    /* ================= EDIT GET ================= */
+    protected void processRequestEdit_GET(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+        User login = SessionUtils.getLoginedUser(session);
+
+        if (login == null || !"SUPERVISOR".equals(login.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/index.jsp");
+            return;
+        }
+
+        long attendanceId = Long.parseLong(request.getParameter("id"));
+
+        request.setAttribute("module", "Attendance");
+        request.setAttribute("controller", "attendance");
+        request.setAttribute("action", "edit");
+        request.setAttribute("subaction", "");
+
+        try (Connection conn = DBConnection.PGConnection()) {
+
+            Attendance att = AttendanceDBUtils.getById(conn, attendanceId);
+            request.setAttribute("attendanceData", att);
+
+            Worker w = new Worker();
+            List<Worker> workerList = WorkerDBUtils.workers(conn, w);
+            request.setAttribute("workerList", workerList);
+
+            List<WorkType> workTypeList = WorkTypeDBUtils.workTypes(conn);
+            request.setAttribute("workTypeList", workTypeList);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        request.getRequestDispatcher("/attendance/edit.jsp").forward(request, response);
+    }
+
+    /* ================= UPDATE POST ================= */
+    protected void processRequestUpdate_POST(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+        User login = SessionUtils.getLoginedUser(session);
+
+        if (login == null || !"SUPERVISOR".equals(login.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/index.jsp");
+            return;
+        }
+
+        try (Connection conn = DBConnection.PGConnection()) {
+
+            long attendanceId = Long.parseLong(request.getParameter("attendanceId"));
+            int workerId = Integer.parseInt(request.getParameter("workerId"));
+            int workTypeId = Integer.parseInt(request.getParameter("workTypeId"));
+            String dayType = request.getParameter("dayType");
+
+            Attendance old = AttendanceDBUtils.getById(conn, attendanceId);
+
+            String photoPath = old.getPhotoPath();
+
+            Part photo = request.getPart("photo");
+            if (photo != null && photo.getSize() > 0) {
+
+                String date = old.getAttendanceDate();
+//                String basePath = getServletContext().getInitParameter(Constants.UPLOAD_BASE_PATH);
+ String basePath = (Constants.UPLOAD_BASE_PATH);
+                File uploadDir = new File(basePath, "attendance/" + date);
+
+                if (!uploadDir.exists()) uploadDir.mkdirs();
+
+                String fileName = "att_" + workerId + "_" + System.currentTimeMillis() + ".jpg";
+                File savedFile = new File(uploadDir, fileName);
+                photo.write(savedFile.getAbsolutePath());
+
+                photoPath = "attendance/" + date + "/" + fileName;
+            }
+
+            double wage = AttendanceDBUtils.getWage(conn, workTypeId, dayType);
+
+            Attendance att = new Attendance();
+            att.setAttendanceId(attendanceId);
+            att.setWorkerId(workerId);
+            att.setWorkTypeId(workTypeId);
+            att.setDayType(dayType);
+            att.setWage(wage);
+            att.setPhotoPath(photoPath);
+
+            AttendanceDBUtils.updateAttendance(conn, att);
+
+            request.setAttribute("status", 200);
+            request.setAttribute("message", "Attendance updated successfully");
+
+            request.setAttribute("date", old.getAttendanceDate());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("status", 300);
+            request.setAttribute("message", "Unable to update attendance");
+        }
+
+        processRequest(request, response);
+    }
+
+    /* ================= DELETE POST ================= */
+    protected void processRequestDelete_POST(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+        User login = SessionUtils.getLoginedUser(session);
+
+        if (login == null || !"SUPERVISOR".equals(login.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/index.jsp");
+            return;
+        }
+
+        String date = request.getParameter("date");
+
+        try (Connection conn = DBConnection.PGConnection()) {
+
+            long attendanceId = Long.parseLong(request.getParameter("attendanceId"));
+            AttendanceDBUtils.deleteAttendance(conn, attendanceId);
+
+            request.setAttribute("status", 200);
+            request.setAttribute("message", "Attendance deleted successfully");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("status", 300);
+            request.setAttribute("message", "Unable to delete attendance");
+        }
+
+        request.setAttribute("date", date);
         processRequest(request, response);
     }
 
@@ -172,8 +303,8 @@ public class AttendanceServlet extends HttpServlet {
 
         String action = request.getParameter("action");
 
-        if ("create".equals(action)) {
-            processRequestCreate_GET(request, response);
+        if ("edit".equals(action)) {
+            processRequestEdit_GET(request, response);
         } else {
             processRequest(request, response);
         }
@@ -187,7 +318,11 @@ public class AttendanceServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         if ("create".equals(action)) {
-            processRequestCreate_POST(request, response);
+            processRequestCreate(request, response);
+        } else if ("update".equals(action)) {
+            processRequestUpdate_POST(request, response);
+        } else if ("delete".equals(action)) {
+            processRequestDelete_POST(request, response);
         }
     }
 }

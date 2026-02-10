@@ -11,20 +11,33 @@ import java.util.List;
  * @author vaishnavi.dhole
  */
 public class Attendance {
-   private int id;
+   private long attendanceId;     // DB: attendance_id (BIGSERIAL)
+    private String attendanceDate; // DB: attendance_date
+
+    private int id;
     private int workerId;
     private int siteId;
     private int userId;
     private int workTypeId;
+
     private String dayType;
     private double wage;
+
     private String photoPath;
+
     private double latitude;
     private double longitude;
     private double accuracy;
 
+    // Extra fields for UI list/report
+    private String workerName;
+    private String workTypeName;
+    private String supervisorName;
+
+    // If you want to store list in DTO (like WorkerDTO)
     private List<Attendance> list;
 
+   
     public int getId() {
         return id;
     }
@@ -119,6 +132,46 @@ public class Attendance {
 
     public void setList(List<Attendance> list) {
         this.list = list;
+    }
+
+    public long getAttendanceId() {
+        return attendanceId;
+    }
+
+    public void setAttendanceId(long attendanceId) {
+        this.attendanceId = attendanceId;
+    }
+
+    public String getAttendanceDate() {
+        return attendanceDate;
+    }
+
+    public void setAttendanceDate(String attendanceDate) {
+        this.attendanceDate = attendanceDate;
+    }
+
+    public String getWorkerName() {
+        return workerName;
+    }
+
+    public void setWorkerName(String workerName) {
+        this.workerName = workerName;
+    }
+
+    public String getWorkTypeName() {
+        return workTypeName;
+    }
+
+    public void setWorkTypeName(String workTypeName) {
+        this.workTypeName = workTypeName;
+    }
+
+    public String getSupervisorName() {
+        return supervisorName;
+    }
+
+    public void setSupervisorName(String supervisorName) {
+        this.supervisorName = supervisorName;
     }
     
     

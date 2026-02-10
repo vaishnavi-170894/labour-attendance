@@ -10,7 +10,7 @@ package com.attendance.common;
  */
 public class Constants {
      public final static String TITLE = "Any Works Enterprises";
-    public final static String PROJECTNAME = "Labour-attendance";
+    public final static String PROJECTNAME = "Labour Attendance System";
     public final static String UPLOAD_BASE_PATH = "D:/labour-attendance/uploads";
     
 }
